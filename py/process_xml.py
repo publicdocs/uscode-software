@@ -305,7 +305,10 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     of = wdir + '/title.md'
     zipurl = _download_url_template.substitute(rp1 = rp1, rp2 = rp2)
     titlefilename = "usc" + title + ".xml"
-    titlepath = zip_contents.titledir + "/xml/" + titlefilename
+    moredir = "xml/"
+    if rp1 == "113" and rp2 == "21":
+        moredir = ""
+    titlepath = zip_contents.titledir + "/" + moredir + titlefilename
 
 
     hasher = hashlib.sha512()
@@ -338,7 +341,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 cid = fd.identifier
                 # titleroot reporoot prev next filename
                 fn = (u'/m_') + cid.replace(u'/', u'_') + u'.md'
-                tr = u'./' + (u'../' * cid.count(u'/'))
+                tr = u'./' + (u'../' * lastdir.count(u'/'))
                 outsets.append([fd._replace(titleroot = tr, dir=lastdir, filename = fn), lastoutset])
                 lastoutset = []
                 inc = inc + 1
