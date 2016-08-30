@@ -11,7 +11,7 @@ Copyright (c) 2016 the authors of the https://github.com/publicdocs project.
 Project content, excluding third-party content, is licensed under the
 Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
 License (the "License"), available at https://creativecommons.org/licenses/by-nc-nd/4.0/.
-Attribution under the license means including the entirety of this
+Attribution under the License requires inclusion of the entirety of this
 notice and the document metadata (if any).
 
 No copyright in third-party content, including without limitation United States
