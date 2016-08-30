@@ -305,7 +305,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     of = wdir + '/title.md'
     zipurl = _download_url_template.substitute(rp1 = rp1, rp2 = rp2)
     titlefilename = "usc" + title + ".xml"
-    titlepath = zip_contents.titledir + "/" + titlefilename
+    titlepath = zip_contents.titledir + "/xml/" + titlefilename
 
 
     hasher = hashlib.sha512()
