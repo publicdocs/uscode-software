@@ -236,7 +236,7 @@ def process_element(elem, nofmt = False):
     content_post = u''
     chnofmt = False
     if tag == TAG_META:
-        meta = ElementTree.tostring(elem, "UTF-8", "html")
+        meta = unicode(ElementTree.tostring(elem))
     else:
         if elem.get('identifier') and (tag in TAGS_HEADINGS):
             cid = elem.get('identifier')
