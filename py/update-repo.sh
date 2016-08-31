@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2016 the authors of the https://github.com/publicdocs project.
+# Use of this file is subject to the NOTICE file in the root of the repository.
+#
 
 USC_SW_VER=$(git --git-dir=../uscode-software/.git rev-parse HEAD)
 
