@@ -371,6 +371,11 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
             #print 'Found fd', o
             if fd:
                 cid = fd.identifier
+                if ".." in cid:
+                    print "Cannot have '..' in identifier " + cid
+                    assert(False)
+                    sys.exit(2)
+                    return
                 # titleroot reporoot prev next filename
                 fn = (u'/m_') + cid.replace(u'/', u'_') + u'.md'
                 tr = u'./' + (u'../' * lastdir.count(u'/'))
