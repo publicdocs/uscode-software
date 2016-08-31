@@ -29,7 +29,7 @@ Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER"
   fi
 done
 
-for USCNUM in $USCCMDONLY
+for USCNUM in $USCMDONLY
 do
   if [ -e assets/md/titles/usc$USCNUM/us ] || [ -e ../uscode-software/working/gen/titles/usc$USCNUM/us ] ; then
     echo P2 Metadata update $USCNUM
