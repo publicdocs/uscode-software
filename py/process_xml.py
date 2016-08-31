@@ -108,6 +108,8 @@ NBSP = u"\u00A0"
 _sp = "{http://xml.house.gov/schemas/uslm/1.0}"
 TAG_META = _sp + "meta"
 
+TAG_APPENDIX = _sp + "appendix"
+TAG_COURT_RULES = _sp + "courtRules"
 TAG_TITLE = _sp + "title"
 TAG_SUBTITLE = _sp + "subtitle"
 TAG_CHAPTER = _sp + "chapter"
@@ -118,12 +120,18 @@ TAG_DIVISION = _sp + "division"
 TAG_SUBDIVISION = _sp + "subdivision"
 TAG_ARTICLE = _sp + "article"
 TAG_SUBARTICLE = _sp + "subarticle"
-TAG_SECTION = _sp + "section"
 
-TAGS_LARGE = [TAG_TITLE, TAG_SUBTITLE, TAG_CHAPTER, TAG_SUBCHAPTER, TAG_PART, TAG_SUBPART, TAG_DIVISION, TAG_SUBDIVISION, TAG_ARTICLE, TAG_SUBARTICLE]
+TAG_SECTION = _sp + "section"
+TAG_COURT_RULE = _sp + "courtRule"
+
+TAGS_SECTION_LIKE = [TAG_SECTION, TAG_COURT_RULE]
+
+TAGS_LARGE = [TAG_APPENDIX, TAG_COURT_RULES, TAG_TITLE, TAG_SUBTITLE, TAG_CHAPTER, TAG_SUBCHAPTER, TAG_PART, TAG_SUBPART, TAG_DIVISION, TAG_SUBDIVISION, TAG_ARTICLE, TAG_SUBARTICLE]
+
 TAGS_HEADINGS = []
+
 TAGS_HEADINGS.extend(TAGS_LARGE)
-TAGS_HEADINGS.append(TAG_SECTION)
+TAGS_HEADINGS.extend(TAGS_SECTION_LIKE)
 
 TAG_SUBSECTION = _sp + "subsection"
 TAG_PARAGRAPH = _sp + "paragraph"
@@ -290,7 +298,7 @@ def process_element(elem, nofmt = False):
             lastnl = o.endswith(u'\n')
 
     if filesep:
-        if tag == TAG_SECTION:
+        if tag in TAGS_SECTION_LIKE:
             outputs2.insert(0, FileDelimiter(identifier=filesep, dir=None))
         else:
             outputs2.insert(0, FileDelimiter(identifier=filesep, dir=filesep))
@@ -473,7 +481,10 @@ def main():
         z = process_zip(args.input_zip, args.working_directory)
         notice = args.notice_file.read()
         prep_output(args.working_directory)
-        for title in args.titles:
+        at = args.titles
+        if not at:
+            at = sorted("01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 05A 11A 18A 28A 50A".split())
+        for title in at:
             process_title(z, title, args.rp1, args.rp2, notice, args.working_directory)
     else:
         print "Could not determine operating mode"

@@ -7,7 +7,7 @@ USC_SW_VER=$(git --git-dir=../uscode-software/.git rev-parse HEAD)
 
 
 USCMDONLY=" "
-for USCNUM in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+for USCNUM in 01 02 03 04 05 05A 06 07 08 09 10 11 11A 12 13 14 15 16 17 18 18A 19 20 21 22 23 24 25 26 27 28 28A 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 50A 51 52 53 54 55 56 57 58 59 60
 do
   if [ -e assets/md/titles/usc$USCNUM/us ] || [ -e ../uscode-software/working/gen/titles/usc$USCNUM/us ] ; then
     git diff --exit-code --quiet --no-index assets/md/titles/usc$USCNUM/us ../uscode-software/working/gen/titles/usc$USCNUM/us
