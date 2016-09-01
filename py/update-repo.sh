@@ -50,7 +50,8 @@ do
       mkdir assets/md/titles/usc$USCNUM
       cp -R ../uscode-software/working/gen/titles/usc$USCNUM assets/md/titles
       git add -A .
-      git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM
+      USCDIFFSTAT=$(git diff --shortstat)
+      git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM ; $USCDIFFSTAT
 
 Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER"
     fi
