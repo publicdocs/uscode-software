@@ -19,21 +19,21 @@ fi
 for USCNUM in $USCFAILEDTITLES
 do
   if [ -e assets/md/titles/usc$USCNUM/us ] ; then
-    echo P3 Report corrupt file $USCNUM
+    echo P0 Report corrupt file $USCNUM
     sed -i -e "s/ Release Point:/ __WARNING: XML file could not be parsed at Release Point $USCRP1-$USCRP2,__ therefore this Title remains at Release Point:/g" assets/md/titles/usc$USCNUM/README.md
     # sed leaves a file.
     rm assets/md/titles/usc$USCNUM/README.md-e
   else
-    echo P3 No such title $USCNUM
+    echo P0 No such title $USCNUM
   fi
 done
 
 git add -A .
-git commit -m "Rel $USCRP1-$USCRP2 - USC titles with corrupt files: $USCFAILEDTITLES
+git commit -m "Rel $USCRP1-$USCRP2 - Corrupted USC titles: $USCFAILEDTITLES
 
-These titles cannot be updated and remain at the prior release point.
+These titles cannot be updated, usually because their XML files are invalid or corrupted, and remain at the prior release point.
 
-Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER" || echo P3 No corrupt files.
+Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER" || echo P0 No corrupt files.
 
 
 USCMDONLY=" "
@@ -50,8 +50,8 @@ do
       mkdir assets/md/titles/usc$USCNUM
       cp -R ../uscode-software/working/gen/titles/usc$USCNUM assets/md/titles
       git add -A .
-      USCDIFFSTAT=$(git diff --shortstat)
-      git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM ; $USCDIFFSTAT
+      USCDIFFSTAT=$(git diff --shortstat | tr '\n' ' ')
+      git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM : $USCDIFFSTAT
 
 Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER"
     fi

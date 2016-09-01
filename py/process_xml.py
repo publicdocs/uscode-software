@@ -33,6 +33,7 @@ import zipfile
 from xml.etree import ElementTree
 from string import Template
 from collections import namedtuple
+from multiprocessing import Pool
 
 ## CONSTANTS
 
@@ -185,7 +186,8 @@ def md_header_prefix(identifier):
         c = 6
     return (u"#" * c) + u" "
 
-_md_escape_chars = u'\\`*_{}[]()#+-.!'.split()
+# No links, images, or html tags. Don't auto bold or italics either
+_md_escape_chars = list(u'\\`_{}[]<>*_')
 def md_escape(txt):
     ret = u""
     for c in txt:
@@ -504,6 +506,18 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     f.write(fc.encode('utf8'))
     f.close()
 
+class title_processor:
+    def __init__(self, z, rp1, rp2, notice, working_directory):
+        self.z = z
+        self.rp1 = rp1
+        self.rp2 = rp2
+        self.notice = notice
+        self.working_directory = working_directory
+
+    def __call__(self, title):
+        process_title(self.z, title, self.rp1, self.rp2, self.notice, self.working_directory)
+        return u"Processor for " + title + u" complete."
+
 def main():
     parser = argparse.ArgumentParser(description='Generates publicdocs project US Code files.')
     parser.add_argument('--ua', dest='useragent', action='store',
@@ -537,8 +551,13 @@ def main():
         at = args.titles
         if not at:
             at = sorted("01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 05A 11A 18A 28A 50A".split())
-        for title in at:
-            process_title(z, title, args.rp1, args.rp2, notice, args.working_directory)
+        if len(at) > 1:
+            pool = Pool(len(at))
+            tp = title_processor(z, args.rp1, args.rp2, notice, args.working_directory)
+            print pool.map(tp, at)
+        else:
+            for title in at:
+                process_title(z, title, args.rp1, args.rp2, notice, args.working_directory)
     else:
         print "Could not determine operating mode"
         assert(False)
