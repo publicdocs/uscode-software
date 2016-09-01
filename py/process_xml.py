@@ -170,6 +170,19 @@ TAGS_BREAK.extend(TAGS_SMALL)
 
 
 TAG_LAYOUT = _sp + "layout"
+TAG_HEADER = _sp + "header"
+TAG_TOC_ITEM = _sp + "tocItem"
+TAG_COLUMN = _sp + "column"
+
+_shtml = "{http://www.w3.org/1999/xhtml}"
+TAG_TABLE = _shtml + "table"
+TAG_TR = _shtml + "tr"
+TAG_TD = _shtml + "td"
+TAG_TH = _shtml + "th"
+TAG_THEAD = _shtml + "thead"
+TAG_TBODY = _shtml + "tbody"
+TAG_TFOOT = _shtml + "tfoot"
+TAG_COLGROUP = _shtml + "colgroup"
 
 ## STRUCTURES
 ZipContents = namedtuple("ZipContents", "sha512 titledir")
@@ -282,9 +295,25 @@ def process_element(elem, nofmt = False):
     elif tag == TAG_LAYOUT:
         outputs.append(u'\n\n<table>\n')
         for rowe in elem:
-            outputs.append(u'  <tr>\n')
+            if not (rowe.tag == TAG_HEADER or rowe.tag == TAG_TOC_ITEM):
+                print u"FAIL layout FOUND ROW " + rowe.tag
+                assert(False)
+                system.exit(3)
+                return None
+            if rowe.get(u'rowspan'):
+                outputs.append(u'  <tr rowspan="' + str(int(rowe.get(u'rowspan')))+ '">\n')
+            else:
+                outputs.append(u'  <tr>\n')
             for cole in rowe:
-                outputs.append(u'    <td>\n')
+                if not (cole.tag == TAG_COLUMN):
+                    print u"FAIL layout FOUND COL " + cole.tag
+                    assert(False)
+                    system.exit(3)
+                    return None
+                if cole.get(u'colspan'):
+                    outputs.append(u'    <td colspan="' + str(int(cole.get(u'colspan')))+ '"> ')
+                else:
+                    outputs.append(u'    <td> ')
                 p = process_element(cole, chnofmt)
                 if p.outputmd:
                     # Already escaped
@@ -294,21 +323,96 @@ def process_element(elem, nofmt = False):
                         if isinstance(txtp, FileDelimiter):
                             outputs.append(txtp)
                             continue
-                        if txtp.strip() and (content_pre or content_post):
-                            outputs.append(content_pre + txtp + content_post)
+                        if txtp.strip():
+                            # We strip column content
+                            outputs.append(txtp.strip())
                         else:
                             outputs.append(txtp)
-                if p.inputmeta:
-                    meta = meta + p.inputmeta
-                if p.tail:
-                    if p.tail.strip() and (content_pre or content_post):
-                        outputs.append(content_pre + md_escape(unicode(p.tail).strip()) + content_post)
+                outputs.append(u'  </td>\n')
+            outputs.append(u'\n  </tr>\n')
+        outputs.append(u'</table>\n')
+    elif tag == TAG_TABLE:
+        outputs.append(u'\n\n<table>\n')
+        for sect in elem:
+            if sect.tag == TAG_COLGROUP:
+                continue
+            elif sect.tag == TAG_THEAD or sect.tag == TAG_TBODY or sect.tag == TAG_TFOOT:
+                for rowe in sect:
+                    if not (rowe.tag == TAG_TR):
+                        print u"FAIL table FOUND ROW " + rowe.tag
+                        assert(False)
+                        system.exit(3)
+                        return None
+                    if rowe.get(u'rowspan'):
+                        outputs.append(u'  <tr rowspan="' + str(int(rowe.get(u'rowspan')))+ '">\n')
                     else:
-                        outputs.append(md_escape(unicode(p.tail)))
-                outputs.append(u'\n    </td>\n')
-            outputs.append(u'  </tr>')
-        outputs.append(u'\n</table>\n')
+                        outputs.append(u'  <tr>\n')
+                    for cole in rowe:
+                        if not (cole.tag == TAG_TD or cole.tag == TAG_TH):
+                            print u"FAIL table FOUND COL " + cole.tag
+                            assert(False)
+                            system.exit(3)
+                            return None
+                        if cole.get(u'colspan'):
+                            outputs.append(u'    <td colspan="' + str(int(cole.get(u'colspan')))+ '"> ')
+                        else:
+                            outputs.append(u'    <td> ')
+                        p = process_element(cole, chnofmt)
+                        if p.outputmd:
+                            # Already escaped
+                            for txtp in p.outputmd:
+                                if not txtp:
+                                    continue
+                                if isinstance(txtp, FileDelimiter):
+                                    outputs.append(txtp)
+                                    continue
+                                if txtp.strip():
+                                    # We strip column content
+                                    outputs.append(txtp.strip())
+                                else:
+                                    outputs.append(txtp)
+                        outputs.append(u'  </td>\n')
+                    outputs.append(u'\n  </tr>\n')
+            else:
+                rowe = sect
+                if not (rowe.tag == TAG_TR):
+                    print u"FAIL table FOUND ROW " + rowe.tag
+                    assert(False)
+                    system.exit(3)
+                    return None
+                if rowe.get(u'rowspan'):
+                    outputs.append(u'  <tr rowspan="' + str(int(rowe.get(u'rowspan')))+ '">\n')
+                else:
+                    outputs.append(u'  <tr>\n')
+                for cole in rowe:
+                    if not (cole.tag == TAG_TD or cole.tag == TAG_TH):
+                        print u"FAIL table FOUND COL " + cole.tag
+                        assert(False)
+                        system.exit(3)
+                        return None
+                    if cole.get(u'colspan'):
+                        outputs.append(u'    <td colspan="' + str(int(cole.get(u'colspan')))+ '"> ')
+                    else:
+                        outputs.append(u'    <td> ')
+                    p = process_element(cole, chnofmt)
+                    if p.outputmd:
+                        # Already escaped
+                        for txtp in p.outputmd:
+                            if not txtp:
+                                continue
+                            if isinstance(txtp, FileDelimiter):
+                                outputs.append(txtp)
+                                continue
+                            if txtp.strip():
+                                # We strip column content
+                                outputs.append(txtp.strip())
+                            else:
+                                outputs.append(txtp)
+                    outputs.append(u'  </td>\n')
+                outputs.append(u'\n  </tr>\n')
+        outputs.append(u'</table>\n')
     else:
+        extraproc = True
         if elem.get('identifier') and (tag in TAGS_HEADINGS):
             cid = elem.get('identifier')
             filesep = unicode(cid)
