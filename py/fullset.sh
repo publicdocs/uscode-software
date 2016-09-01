@@ -64,7 +64,8 @@ if [ "$USCSTEP" = "02" ]; then
   git checkout master
   git reset --hard HEAD
 
-  git checkout -b $USCBRANCH
+  git checkout -f -b $USCBRANCH
+  git reset --hard master
 
   USCTITLES="$USCTITLES" USCFAILEDTITLES="$USCFAILEDTITLES" sh ../uscode-software/py/update-repo.sh
 
@@ -101,9 +102,9 @@ if [ "$USCSTEP" = "04" ]; then
 
   git push --set-upstream origin $USCBRANCH
 
-  git tag t-$USCBRANCH
+  git tag -f t-$USCBRANCH
 
-  git branch -f master HEAD ; git push --all ; git push --tags
+  git branch -f master HEAD ; git push -f --all ; git push --tags -f
 
   popd
   USCSTEP=05
