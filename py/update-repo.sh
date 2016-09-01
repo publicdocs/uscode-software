@@ -46,15 +46,21 @@ do
       echo P1 Skipping $USCNUM for now - no content difference.
       USCMDONLY="$USCMDONLY $USCNUM"
     else
-      echo P1 Content difference for $USCNUM - committing.
       rm -rf assets/md/titles/usc$USCNUM
       mkdir assets/md/titles/usc$USCNUM
       cp -R ../uscode-software/working/gen/titles/usc$USCNUM assets/md/titles
       git add -A .
       USCDIFFSTAT=$(git diff --shortstat HEAD | sed -e 's/ changed//g' | sed -e 's/insertions//g' | sed -e 's/insertion//g' | sed -e 's/deletions//g' | sed -e 's/deletion//g' | tr '\n' ' ')
-      git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM :$USCDIFFSTAT
+      if [ "$USCDIFFSTAT" = " 2 files, 7 (+), 7 (-)" ]; then
+        echo P1 Minor Content difference for $USCNUM - skipping until end.
+        git reset --hard HEAD
+        USCMDONLY="$USCMDONLY $USCNUM"
+      else
+        echo P1 Major Content difference for $USCNUM - committing.
+        git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM :$USCDIFFSTAT
 
 Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER"
+      fi
     fi
   else
     echo P1 No such title $USCNUM
