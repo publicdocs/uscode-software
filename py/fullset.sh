@@ -20,13 +20,22 @@ if [ "$USCSTEP" = "" ]; then
   USCSTEP=01
 fi
 
+USCFN=xml_uscAll\@${USCRP1}-${USCRP2}.zip
+
+if [ "$USCSTEP" = "01" ]; then
+  USCSTEP=01
+  # As of 2016-Sep-1, http://uscode.house.gov/robots.txt only disallows the 'Slurp' bot,
+  # but doesn't block other bots.  Regardless, let's be curteous.
+  curl -A "$PROC_UA" http://uscode.house.gov/download/releasepoints/us/pl/$USCRP1/$USCRP2/$USCFN > ../Downloads/
+fi
+
 if [ "$USCSTEP" = "01" ]; then
   USCSTEP=02
   pushd ../uscode-software
 
   echo To run:
-  echo python py/process_xml.py --i=/Users/dev1/Downloads/xml_uscAll\@$USCRP1-$USCRP2.zip --rp1=$USCRP1 --rp2=$USCRP2 --o=../uscode/ --notice=NOTICE --title $USCTITLES
-  time python py/process_xml.py --i=/Users/dev1/Downloads/xml_uscAll\@$USCRP1-$USCRP2.zip --rp1=$USCRP1 --rp2=$USCRP2 --o=../uscode/ --notice=NOTICE --title $USCTITLES
+  echo python py/process_xml.py --i=../Downloads/$USCFN --rp1=$USCRP1 --rp2=$USCRP2 --o=../uscode/ --notice=NOTICE --title $USCTITLES
+  time python py/process_xml.py --i=../Downloads/$USCFN --rp1=$USCRP1 --rp2=$USCRP2 --o=../uscode/ --notice=NOTICE --title $USCTITLES
 
   popd
 fi
