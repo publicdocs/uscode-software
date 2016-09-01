@@ -27,7 +27,7 @@ do
 done
 
 git add -A .
-git commit -m "Rel $USCRP1-$USCRP2 - USC titles with corrupt failes: $USCFAILEDTITLES
+git commit -m "Rel $USCRP1-$USCRP2 - USC titles with corrupt files: $USCFAILEDTITLES
 
 These titles cannot be updated and remain at the prior release point.
 
