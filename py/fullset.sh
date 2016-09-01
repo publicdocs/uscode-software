@@ -80,6 +80,8 @@ if [ "$USCSTEP" = "03" ]; then
 
   git branch -f master HEAD ; git push --all ; git push --tags
 
+  rm ../Downloads/$USCFN
+
 
   popd
   USCSTEP=04
