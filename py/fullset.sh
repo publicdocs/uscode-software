@@ -23,9 +23,12 @@ fi
 
 USCFN=xml_uscAll\@${USCRP1}-${USCRP2}.zip
 
+
 if [ "$USCSTEP" = "00" ]; then
+  mkdir -p ../Downloads/ ../uscode/assets/md/titles/
+
   USCSTEP=01
-  if [ -e assets/md/titles/usc$USCNUM/us ] ; then
+  if [ -e ../Downloads/$USCFN ] ; then
     echo STEP 0 - Already have http://uscode.house.gov/download/releasepoints/us/pl/$USCRP1/$USCRP2/$USCFN
   else
     echo STEP 0 - Downloading http://uscode.house.gov/download/releasepoints/us/pl/$USCRP1/$USCRP2/$USCFN
