@@ -9,11 +9,30 @@ USC_SW_VER=$(git --git-dir=../uscode-software/.git rev-parse HEAD)
 
 # for each title:
 
-USALLTITLES="01 02 03 04 05 05A 06 07 08 09 10 11 11A 12 13 14 15 16 17 18 18A 19 20 21 22 23 24 25 26 27 28 28A 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 50A 51 52 53 54 55 56 57 58 59 60"
+USCALLTITLES="01 02 03 04 05 05A 06 07 08 09 10 11 11A 12 13 14 15 16 17 18 18A 19 20 21 22 23 24 25 26 27 28 28A 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 50A 51 52 53 54 55 56 57 58 59 60"
 USCCURTITLES="$USCTITLES"
 if [ -z "$USCCURTITLES" ]; then
-    USCCURTITLES="$USALLTITLES"
+    USCCURTITLES="$USCALLTITLES"
 fi
+
+
+for USCNUM in $USCFAILEDTITLES
+do
+  if [ -e assets/md/titles/usc$USCNUM/us ] ; then
+    echo P3 Report corrupt file $USCNUM
+    sed -i -e "s/ Release Point:/ __WARNING: XML file could not be parsed at Release Point $USCRP1-$USCRP2,__ therefore this Title remains at Release Point:/g" assets/md/titles/usc$USCNUM/README.md
+  else
+    echo P3 No such title $USCNUM
+  fi
+done
+
+git add -A .
+git commit -m "Rel $USCRP1-$USCRP2 - USC titles with corrupt failes: $USCFAILEDTITLES
+
+These titles cannot be updated and remain at the prior release point.
+
+Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER" || echo P3 No corrupt files.
+
 
 USCMDONLY=" "
 for USCNUM in $USCCURTITLES
@@ -49,6 +68,7 @@ do
     echo P2 No such title $USCNUM
   fi
 done
+
 
 git add -A .
 git commit -m "Rel $USCRP1-$USCRP2 - USC titles with metadata update only: $USCMDONLY

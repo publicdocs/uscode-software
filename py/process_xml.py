@@ -185,10 +185,24 @@ def md_header_prefix(identifier):
         c = 6
     return (u"#" * c) + u" "
 
+_md_escape_chars = u'\\`*_{}[]()#+-.!'.split()
+def md_escape(txt):
+    ret = u""
+    for c in txt:
+        if c in _md_escape_chars:
+            ret = ret + "\\"
+        ret = ret + c
+    return ret
 
 def md_indent(clazz):
     ind = 0
-    if u"indent10" in clazz:
+    if u"indent13" in clazz:
+        ind = 14
+    elif u"indent12" in clazz:
+        ind = 13
+    elif u"indent11" in clazz:
+        ind = 12
+    elif u"indent10" in clazz:
         ind = 11
     elif u"indent9" in clazz:
         ind = 10
@@ -241,6 +255,7 @@ def process_element(elem, nofmt = False):
     text = elem.text
     attrib = elem.attrib
     tail = elem.tail
+    # Rule: Any text content must be MD-escaped
     outputs = []
     filesep = None
     cid = None
@@ -268,21 +283,22 @@ def process_element(elem, nofmt = False):
 
         if text:
             if text.strip() and (content_pre or content_post):
-                outputs.append(content_pre + unicode(text).strip() + content_post)
+                outputs.append(content_pre + md_escape(unicode(text).strip()) + content_post)
             else:
-                outputs.append(unicode(text))
+                outputs.append(md_escape(unicode(text)))
 
         for child in elem:
             p = process_element(child, chnofmt)
             if p.outputmd:
+                # Already escaped
                 outputs.extend(p.outputmd)
             if p.inputmeta:
                 meta = meta + p.inputmeta
             if p.tail:
                 if p.tail.strip() and (content_pre or content_post):
-                    outputs.append(content_pre + unicode(p.tail).strip() + content_post)
+                    outputs.append(content_pre + md_escape(unicode(p.tail).strip()) + content_post)
                 else:
-                    outputs.append(unicode(p.tail))
+                    outputs.append(md_escape(unicode(p.tail)))
 
     ind = u""
     if elem.get('class'):
@@ -347,6 +363,11 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
 
     if rp1 == "113" and rp2 == "46" and title == "16":
         print "usc16.xml at release 113-46 is a corrupt file"
+        assert(False)
+        sys.exit(2)
+        return
+    if rp1 == "113" and rp2 == "65" and title == "31":
+        print "usc31.xml at release 113-65 is a corrupt file"
         assert(False)
         sys.exit(2)
         return
