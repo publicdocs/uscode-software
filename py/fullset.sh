@@ -100,7 +100,7 @@ fi
 if [ "$USCSTEP" = "04" ]; then
   pushd ../uscode
 
-  git push --set-upstream origin $USCBRANCH
+  git push -f --set-upstream origin $USCBRANCH
 
   git tag -f t-$USCBRANCH
 
