@@ -168,6 +168,9 @@ TAGS_BREAK = [TAG_CHAPEAU, TAG_CONTINUATION, TAG_P]
 TAGS_BREAK.extend(TAGS_HEADINGS)
 TAGS_BREAK.extend(TAGS_SMALL)
 
+
+TAG_LAYOUT = _sp + "layout"
+
 ## STRUCTURES
 ZipContents = namedtuple("ZipContents", "sha512 titledir")
 ProcessedElement = namedtuple("ProcessedElement", "inputmeta outputmd tail")
@@ -270,8 +273,41 @@ def process_element(elem, nofmt = False):
     line_content_pre = u''
     line_content_post = u''
     chnofmt = False
+    extraproc = False
     if tag == TAG_META:
         meta = unicode(ElementTree.tostring(elem))
+    #elif tag == TAG_REF:
+    #    ref = '#'
+    #    outputs.append(u'[' + u''.join(elem.itertext()) + '](' + ref + ')')
+    elif tag == TAG_LAYOUT:
+        outputs.append(u'\n\n<table>\n')
+        for rowe in elem:
+            outputs.append(u'  <tr>\n')
+            for cole in rowe:
+                outputs.append(u'    <td>\n')
+                p = process_element(cole, chnofmt)
+                if p.outputmd:
+                    # Already escaped
+                    for txtp in p.outputmd:
+                        if not txtp:
+                            continue
+                        if isinstance(txtp, FileDelimiter):
+                            outputs.append(txtp)
+                            continue
+                        if txtp.strip() and (content_pre or content_post):
+                            outputs.append(content_pre + txtp + content_post)
+                        else:
+                            outputs.append(txtp)
+                if p.inputmeta:
+                    meta = meta + p.inputmeta
+                if p.tail:
+                    if p.tail.strip() and (content_pre or content_post):
+                        outputs.append(content_pre + md_escape(unicode(p.tail).strip()) + content_post)
+                    else:
+                        outputs.append(md_escape(unicode(p.tail)))
+                outputs.append(u'\n    </td>\n')
+            outputs.append(u'  </tr>')
+        outputs.append(u'\n</table>\n')
     else:
         if elem.get('identifier') and (tag in TAGS_HEADINGS):
             cid = elem.get('identifier')
@@ -318,7 +354,7 @@ def process_element(elem, nofmt = False):
                     outputs.append(md_escape(unicode(p.tail)))
 
     ind = u""
-    if elem.get('class'):
+    if extraproc and elem.get('class'):
         ind = md_indent(elem.get('class'))
 
     outputs2 = []
@@ -328,7 +364,7 @@ def process_element(elem, nofmt = False):
             lastnl = True
             outputs2.append(o)
         else:
-            if o.strip() and lastnl:
+            if extraproc and o.strip() and lastnl:
                 outputs2.append(ind + line_content_pre + o)
             else:
                 outputs2.append(o)
@@ -456,7 +492,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
 
     fancytitle = titletrunc + u' U.S.C.'
     if isappendix:
-        fancytitle = u"Appendix to " + fancytitle
+        fancytitle = u"Appendix to " + titletrunc[:-1] + u' U.S.C.'
 
     for outs in finaloutsets:
         fd = outs[0]
