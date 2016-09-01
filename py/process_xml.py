@@ -263,6 +263,8 @@ def process_element(elem, nofmt = False):
     cid = None
     content_pre = u''
     content_post = u''
+    line_content_pre = u''
+    line_content_post = u''
     chnofmt = False
     if tag == TAG_META:
         meta = unicode(ElementTree.tostring(elem))
@@ -279,9 +281,9 @@ def process_element(elem, nofmt = False):
                 content_pre = u' __'
                 content_post = u'__ '
         elif tag in TAGS_QUOTED:
-            if not nofmt:
-                content_pre = u'\n> '
-                content_post = u' '
+            if True or not nofmt:
+                line_content_pre = u'\n> '
+                line_content_post = u' '
 
         if text:
             if text.strip() and (content_pre or content_post):
@@ -323,7 +325,7 @@ def process_element(elem, nofmt = False):
             outputs2.append(o)
         else:
             if o.strip() and lastnl:
-                outputs2.append(ind + o)
+                outputs2.append(ind + line_content_pre + o)
             else:
                 outputs2.append(o)
             lastnl = o.endswith(u'\n')
