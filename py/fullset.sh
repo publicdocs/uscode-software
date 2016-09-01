@@ -42,6 +42,21 @@ if [ "$USCSTEP" = "02" ]; then
 
   USCTITLES="$USCTITLES" USCFAILEDTITLES="$USCFAILEDTITLES" sh ../uscode-software/py/update-repo.sh
 
+  echo 21i >_t.ed
+  echo - [Release Point at PL $USCRP1-$USCRP2]\(https://github.com/publicdocs/uscode/tree/t-$USCBRANCH\) >>_t.ed
+  echo . >>_t.ed
+  echo w >>_t.ed
+  echo q >>_t.ed
+  ed README.md <_t.ed
+  rm _t.ed
+
+  git add -A .
+  git commit -m "U.S.C. Rel $USCRP1-$USCRP2
+
+  All valid titles updated.
+
+  Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER"
+
   git push --set-upstream origin $USCBRANCH
 
   git tag t-$USCBRANCH
