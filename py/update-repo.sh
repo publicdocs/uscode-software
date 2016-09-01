@@ -51,7 +51,7 @@ do
       cp -R ../uscode-software/working/gen/titles/usc$USCNUM assets/md/titles
       git add -A .
       USCDIFFSTAT=$(git diff --shortstat HEAD | sed -e 's/ changed//g' | sed -e 's/insertions//g' | sed -e 's/insertion//g' | sed -e 's/deletions//g' | sed -e 's/deletion//g' | tr '\n' ' ')
-      if [ "$USCDIFFSTAT" = " 2 files, 7 (+), 7 (-)" ]; then
+      if [ "z-$USCDIFFSTAT-z" = 'z- 2 files, 7 (+), 7 (-)-z' ]; then
         echo P1 Minor Content difference for $USCNUM - skipping until end.
         git reset --hard HEAD
         USCMDONLY="$USCMDONLY $USCNUM"
