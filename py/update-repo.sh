@@ -46,16 +46,16 @@ do
       echo P1 Skipping $USCNUM for now - no content difference.
       USCMDONLY="$USCMDONLY $USCNUM"
     else
-      rm -rf assets/md/titles/usc$USCNUM
-      mkdir assets/md/titles/usc$USCNUM
-      cp -R ../uscode-software/working/gen/titles/usc$USCNUM assets/md/titles
-      git add -A .
-      USCDIFFSTAT=$(git diff --shortstat HEAD | sed -e 's/ changed//g' | sed -e 's/insertions//g' | sed -e 's/insertion//g' | sed -e 's/deletions//g' | sed -e 's/deletion//g' | tr '\n' ' ')
-      if [ "z-$USCDIFFSTAT-z" = 'z- 2 files, 7 (+), 7 (-) -z' ]; then
+      USCDIFFSTAT=$(git diff --shortstat --no-index assets/md/titles/usc$USCNUM/us ../uscode-software/working/gen/titles/usc$USCNUM/us | sed -e 's/ changed//g' | sed -e 's/insertions//g' | sed -e 's/insertion//g' | sed -e 's/deletions//g' | sed -e 's/deletion//g' | tr '\n' ' ')
+      if [ "z-$USCDIFFSTAT-z" = 'z- 1 file, 1 (+), 1 (-) -z' ]; then
         echo P1 Minor Content difference for $USCNUM - skipping until end.
         git reset --hard HEAD
         USCMDONLY="$USCMDONLY $USCNUM"
       else
+        rm -rf assets/md/titles/usc$USCNUM
+        mkdir assets/md/titles/usc$USCNUM
+        cp -R ../uscode-software/working/gen/titles/usc$USCNUM assets/md/titles
+        git add -A .
         echo P1 Major Content difference for $USCNUM - committing.
         git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM :$USCDIFFSTAT
 
