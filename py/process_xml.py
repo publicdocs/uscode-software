@@ -314,6 +314,7 @@ def process_element(elem, nofmt = False):
                     outputs.append(u'    <td colspan="' + str(int(cole.get(u'colspan')))+ '"> ')
                 else:
                     outputs.append(u'    <td> ')
+                colouts = []
                 p = process_element(cole, chnofmt)
                 if p.outputmd:
                     # Already escaped
@@ -321,13 +322,9 @@ def process_element(elem, nofmt = False):
                         if not txtp:
                             continue
                         if isinstance(txtp, FileDelimiter):
-                            outputs.append(txtp)
                             continue
-                        if txtp.strip():
-                            # We strip column content
-                            outputs.append(txtp.strip())
-                        else:
-                            outputs.append(txtp)
+                        colouts.append(txtp)
+                outputs.extend(colouts)
                 outputs.append(u'  </td>\n')
             outputs.append(u'\n  </tr>\n')
         outputs.append(u'</table>\n')
@@ -357,6 +354,7 @@ def process_element(elem, nofmt = False):
                             outputs.append(u'    <td colspan="' + str(int(cole.get(u'colspan')))+ '"> ')
                         else:
                             outputs.append(u'    <td> ')
+                        colouts = []
                         p = process_element(cole, chnofmt)
                         if p.outputmd:
                             # Already escaped
@@ -364,13 +362,9 @@ def process_element(elem, nofmt = False):
                                 if not txtp:
                                     continue
                                 if isinstance(txtp, FileDelimiter):
-                                    outputs.append(txtp)
                                     continue
-                                if txtp.strip():
-                                    # We strip column content
-                                    outputs.append(txtp.strip())
-                                else:
-                                    outputs.append(txtp)
+                                colouts.append(txtp)
+                        outputs.extend(colouts)
                         outputs.append(u'  </td>\n')
                     outputs.append(u'\n  </tr>\n')
             else:
@@ -394,6 +388,7 @@ def process_element(elem, nofmt = False):
                         outputs.append(u'    <td colspan="' + str(int(cole.get(u'colspan')))+ '"> ')
                     else:
                         outputs.append(u'    <td> ')
+                    colouts = []
                     p = process_element(cole, chnofmt)
                     if p.outputmd:
                         # Already escaped
@@ -401,13 +396,9 @@ def process_element(elem, nofmt = False):
                             if not txtp:
                                 continue
                             if isinstance(txtp, FileDelimiter):
-                                outputs.append(txtp)
                                 continue
-                            if txtp.strip():
-                                # We strip column content
-                                outputs.append(txtp.strip())
-                            else:
-                                outputs.append(txtp)
+                            colouts.append(txtp)
+                    outputs.extend(colouts)
                     outputs.append(u'  </td>\n')
                 outputs.append(u'\n  </tr>\n')
         outputs.append(u'</table>\n')
