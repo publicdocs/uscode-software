@@ -49,6 +49,14 @@ if [ "$USCSTEP" = "02" ]; then
   echo q >>_t.ed
   ed README.md <_t.ed
   rm _t.ed
+  popd
+  USCSTEP=03
+fi
+
+if [ "$USCSTEP" = "03" ]; then
+  pushd ../uscode
+
+  USC_SW_VER=$(git --git-dir=../uscode-software/.git rev-parse HEAD)
 
   git add -A .
   git commit -m "U.S.C. Rel $USCRP1-$USCRP2
@@ -65,7 +73,7 @@ if [ "$USCSTEP" = "02" ]; then
 
 
   popd
-  USCSTEP=03
+  USCSTEP=04
 fi
 
 
