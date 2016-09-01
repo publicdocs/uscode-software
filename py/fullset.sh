@@ -83,6 +83,14 @@ if [ "$USCSTEP" = "03" ]; then
 
   Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER"
 
+  popd
+  USCSTEP=04
+fi
+
+
+if [ "$USCSTEP" = "04" ]; then
+  pushd ../uscode
+
   git push --set-upstream origin $USCBRANCH
 
   git tag t-$USCBRANCH
@@ -93,7 +101,7 @@ if [ "$USCSTEP" = "03" ]; then
 
 
   popd
-  USCSTEP=04
+  USCSTEP=05
 fi
 
 
