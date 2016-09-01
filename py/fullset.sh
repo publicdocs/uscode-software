@@ -24,7 +24,9 @@ USCTITLES="$USCTITLES" USCFAILEDTITLES="$USCFAILEDTITLES" sh ../uscode-software/
 
 git push --set-upstream origin b$USCNUM-rp-$USCRP1-$USCRP2
 
-git branch -f master HEAD ; git push --all
+git tag t-b$USCNUM-rp-$USCRP1-$USCRP2
+
+git branch -f master HEAD ; git push --all ; git push --tags
 
 
 popd
