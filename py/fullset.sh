@@ -22,7 +22,7 @@ fi
 
 USCFN=xml_uscAll\@${USCRP1}-${USCRP2}.zip
 
-if [ "$USCSTEP" = "01" ]; then
+if [ "$USCSTEP" = "00" ]; then
   USCSTEP=01
   # As of 2016-Sep-1, http://uscode.house.gov/robots.txt only disallows the 'Slurp' bot,
   # but doesn't block other bots.  Regardless, let's be curteous.
