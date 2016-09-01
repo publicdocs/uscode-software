@@ -11,11 +11,11 @@ USCBRANCH=b$USCCOREVER-$USCNUM-rp-$USCRP1-$USCRP2
 echo !!!!!!! BUILDING $USCBRANCH
 
 if [ "$USCSTEP" = "" ]; then
-  USCSTEP = 01
+  USCSTEP=01
 fi
 
 if [ "$USCSTEP" = "01" ]; then
-  USCSTEP = 02
+  USCSTEP=02
   pushd ../uscode-software
 
   echo To run:
@@ -44,5 +44,5 @@ if [ "$USCSTEP" = "02" ]; then
 
 
   popd
-  USCSTEP = 03
+  USCSTEP=03
 fi
