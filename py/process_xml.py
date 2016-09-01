@@ -452,6 +452,9 @@ def process_element(elem, nofmt = False):
                 else:
                     outputs.append(md_escape(unicode(p.tail)))
 
+    if tag == TAG_HEADING:
+        outputs.append(u'\n')
+    
     ind = u""
     if extraproc and elem.get('class'):
         ind = md_indent(elem.get('class'))
