@@ -159,7 +159,10 @@ TAGS_BOLDEN = [TAG_HEADING]
 TAG_CHAPEAU = _sp + "chapeau"
 TAG_CONTENT = _sp + "content"
 TAG_CONTINUATION = _sp + "continuation"
-TAG_P = _sp + "p"
+
+_shtml = "{http://www.w3.org/1999/xhtml}"
+
+TAG_P = _shtml + "p"
 
 TAG_QUOTEDCONTENT = _sp + "quotedContent"
 TAGS_QUOTED = [TAG_QUOTEDCONTENT]
@@ -174,7 +177,6 @@ TAG_HEADER = _sp + "header"
 TAG_TOC_ITEM = _sp + "tocItem"
 TAG_COLUMN = _sp + "column"
 
-_shtml = "{http://www.w3.org/1999/xhtml}"
 TAG_TABLE = _shtml + "table"
 TAG_TR = _shtml + "tr"
 TAG_TD = _shtml + "td"
@@ -471,7 +473,8 @@ def process_element(elem, nofmt = False):
         else:
             outputs2.insert(0, FileDelimiter(identifier=filesep, dir=filesep))
 
-    return ProcessedElement(inputmeta = meta, outputmd = outputs2, tail = elem.tail)
+    retp = ProcessedElement(inputmeta = meta, outputmd = outputs2, tail = elem.tail)
+    return retp
 
 def delete_line(path1, path2, num):
     fr = codecs.open(path1, 'rb', encoding='utf-8')
