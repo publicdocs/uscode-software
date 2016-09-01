@@ -81,6 +81,6 @@ done
 
 
 git add -A .
-git commit -m "Rel $USCRP1-$USCRP2 - USC titles with metadata update only: $USCMDONLY
+git commit -m "Rel $USCRP1-$USCRP2 - USC titles with minor update only: $USCMDONLY
 
 Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER" || echo P2 No metadata only titles.
