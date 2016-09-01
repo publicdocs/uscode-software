@@ -64,7 +64,7 @@ if [ "$USCSTEP" = "02" ]; then
   git checkout master
   git reset --hard HEAD
 
-  git checkout -f -b $USCBRANCH
+  git checkout -b $USCBRANCH || ( git branch -D $USCBRANCH && git checkout -b $USCBRANCH )
   git reset --hard master
 
   USCTITLES="$USCTITLES" USCFAILEDTITLES="$USCFAILEDTITLES" sh ../uscode-software/py/update-repo.sh
