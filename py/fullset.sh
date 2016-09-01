@@ -27,6 +27,14 @@ if [ "$USCSTEP" = "00" ]; then
   USCSTEP=01
   # As of 2016-Sep-1, http://uscode.house.gov/robots.txt only disallows the 'Slurp' bot,
   # but doesn't block other bots.  Regardless, let's be curteous.
+  curl -A "$PROC_UA" http://uscode.house.gov/robots.txt > ../Downloads/robots.txt
+  if grep -q "$PROC_UA_PART" "../Downloads/robots.txt"; then
+    echo The following robots.txt was found and it contains $PROC_UA_PART :
+    cat ../Downloads/robots.txt
+    # This will cause the script to fail since the environment variable doesn't exist.
+    echo $PROC_UA_FAIL_CANNOT_CONTINUE
+    exit -1
+  fi
   curl -A "$PROC_UA" http://uscode.house.gov/download/releasepoints/us/pl/$USCRP1/$USCRP2/$USCFN > ../Downloads/$USCFN
 fi
 
