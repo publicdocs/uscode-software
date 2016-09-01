@@ -21,6 +21,8 @@ do
   if [ -e assets/md/titles/usc$USCNUM/us ] ; then
     echo P3 Report corrupt file $USCNUM
     sed -i -e "s/ Release Point:/ __WARNING: XML file could not be parsed at Release Point $USCRP1-$USCRP2,__ therefore this Title remains at Release Point:/g" assets/md/titles/usc$USCNUM/README.md
+    # sed leaves a file.
+    rm assets/md/titles/usc$USCNUM/README.md-e
   else
     echo P3 No such title $USCNUM
   fi
