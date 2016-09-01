@@ -293,7 +293,16 @@ def process_element(elem, nofmt = False):
             p = process_element(child, chnofmt)
             if p.outputmd:
                 # Already escaped
-                outputs.extend(p.outputmd)
+                for txtp in p.outputmd:
+                    if not txtp:
+                        continue
+                    if isinstance(txtp, FileDelimiter):
+                        outputs.append(txtp)
+                        continue
+                    if txtp.strip() and (content_pre or content_post):
+                        outputs.append(content_pre + txtp + content_post)
+                    else:
+                        outputs.append(txtp)
             if p.inputmeta:
                 meta = meta + p.inputmeta
             if p.tail:
