@@ -248,7 +248,9 @@ def md_indent(clazz):
         ind = 2
     elif u"indent0" in clazz:
         ind = 1
-    return NBSP * (ind * 2)
+    if ind > 0:
+        return NBSP * 2
+    return u''
 
 
 def process_zip(input_zip, wd):
