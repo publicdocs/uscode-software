@@ -6,9 +6,9 @@
 
 set -euv
 
-USCCOREVER=201
+USCCOREVER=301
 
-USCBRANCH=b$USCCOREVER-$USCNUM-rp-$USCRP1-$USCRP2
+USCBRANCH=v$USCCOREVER-$USCNUM-rp-$USCRP1-$USCRP2
 
 echo =========================================================================
 echo =========================================================================

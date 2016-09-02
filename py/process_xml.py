@@ -307,9 +307,9 @@ def process_element(elem, nofmt = False):
 
     # Example of a footnote in context:
     # title 15,<ref class="footnoteRef" idref="fn002021">1</ref><note type="footnote" id="fn002021"><num>1</num> See References in Text note below.</note> the ter
-    if tag == TAG_REF and has_class(elem, "footnoteRef"):
+    if tag == TAG_REF and has_class(elem, u"footnoteRef"):
         outputs.append(u' <sup>\[')
-    if tag == TAG_NOTE and has_class(elem, "footnote"):
+    if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
         outputs.append(u' <sup> ')
 
     if tag == TAG_META:
@@ -477,9 +477,8 @@ def process_element(elem, nofmt = False):
         outputs.append(u'\n')
 
     if tag == TAG_REF and has_class(elem, "footnoteRef"):
-        outputs.append(u']</sup> ')
-
-    if tag == TAG_NOTE and has_class(elem, "footnote"):
+        outputs.append(u'\]</sup> ')
+    if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
         outputs.append(u' </sup> ')
 
     ind = u""
