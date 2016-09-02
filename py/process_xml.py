@@ -582,8 +582,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     try:
         hasher.update(open(titlepath, 'rb').read())
     except:
-        print u"(FATAL) #### Could not read title " + str(title)
-        asset(False)
+        print u"(Non-Fatal) #### Skipping; Could not read title " + str(title)
         return -1
     xmlsha = hasher.hexdigest()
 
