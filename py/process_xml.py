@@ -38,7 +38,10 @@ from multiprocessing import Pool
 
 ## CONSTANTS
 
-_out_header_markdown = Template(u"""# $fancytitle, USLM ref $filepart
+_out_header_markdown = Template(u"""---
+---
+
+# $fancytitle, USLM ref $filepart
 
 * Portions Copyright © 2016 the authors of the https://github.com/publicdocs project.
   Use of this file is subject to the NOTICE at [https://github.com/publicdocs/uscode/blob/master/NOTICE](https://github.com/publicdocs/uscode/blob/master/NOTICE)
@@ -64,7 +67,10 @@ $linkset
 """)
 
 
-_out_readme_markdown = Template(u"""# $fancytitle (Release Point PL ${rp1}-${rp2})
+_out_readme_markdown = Template(u"""---
+---
+
+# $fancytitle (Release Point PL ${rp1}-${rp2})
 
 * Portions Copyright © 2016 the authors of the https://github.com/publicdocs project.
   Use of this file is subject to the NOTICE at [https://github.com/publicdocs/uscode/blob/master/NOTICE](https://github.com/publicdocs/uscode/blob/master/NOTICE)

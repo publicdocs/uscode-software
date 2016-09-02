@@ -69,7 +69,7 @@ if [ "$USCSTEP" = "02" ]; then
 
   USCTITLES="$USCTITLES" USCFAILEDTITLES="$USCFAILEDTITLES" sh ../uscode-software/py/update-repo.sh
 
-  echo 21i >_t.ed
+  echo 24i >_t.ed
   echo - [Release Point at PL $USCRP1-$USCRP2]\(https://github.com/publicdocs/uscode/tree/t-$USCBRANCH\) >>_t.ed
   echo . >>_t.ed
   echo w >>_t.ed
