@@ -172,6 +172,7 @@ TAGS_BREAK.extend(TAGS_HEADINGS)
 TAGS_BREAK.extend(TAGS_SMALL)
 
 TAG_NOTE = _sp + "note"
+TAG_REF = _sp + "ref"
 
 TAG_LAYOUT = _sp + "layout"
 TAG_HEADER = _sp + "header"
