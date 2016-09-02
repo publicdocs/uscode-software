@@ -15,9 +15,6 @@
 #
 # For the original downloads see, see: http://uscode.house.gov/download/download.shtml
 #
-# As of 2016-Aug-29, http://uscode.house.gov/robots.txt doesn't disallow all bots,
-# but, regardless, we want to be courteous and be sure not to overload their servers.
-#
 # Store the hash of the ZIP file. This is especially important since we couldn't
 # find an HTTPS download for these files =(
 #
@@ -197,7 +194,7 @@ TAG_COLGROUP = _shtml + "colgroup"
 ## STRUCTURES
 ZipContents = namedtuple("ZipContents", "sha512 titledir")
 ProcessedElement = namedtuple("ProcessedElement", "inputmeta outputmd tail")
-FileDelimiter = namedtuple("FileDelimiter", "identifier dir titleroot reporoot prev next filename")
+FileDelimiter = namedtuple("FileDelimiter", "identifier dir titleroot reporoot prev next filename uslmid")
 FileDelimiter.__new__.__defaults__ = (None, ) * len(FileDelimiter._fields)
 Link = namedtuple("Link", "refcontent href")
 
@@ -516,9 +513,9 @@ def process_element(elem, nofmt = False):
 
     if filesep:
         if tag in TAGS_SECTION_LIKE:
-            outputs2.insert(0, FileDelimiter(identifier=filesep, dir=None))
+            outputs2.insert(0, FileDelimiter(identifier=filesep, dir=None, uslmid=filesep))
         else:
-            outputs2.insert(0, FileDelimiter(identifier=filesep, dir=filesep))
+            outputs2.insert(0, FileDelimiter(identifier=filesep, dir=filesep, uslmid=filesep))
 
     retp = ProcessedElement(inputmeta = meta, outputmd = outputs2, tail = elem.tail)
     return retp
@@ -775,6 +772,12 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         else:
             linkhtml = linkhtml + u'~~Previous~~ | '
 
+        for l in linkset:
+            # refcontent md-escaped on construction
+            hh = unicode(l.href)
+            rps = u''
+            rurl = md_escape(u'https://publicdocs.github.io/go/links?ns=uslm&' + rps + urllib.urlencode({u'ref' : hh.encode('utf-8')}))
+            linksetmd = linksetmd + u'[' + l.refcontent + u']: ' + rurl + u'\n'
 
         if fd.next:
             linkhtml = linkhtml + u'[Next](' + fd.next + u') | '
@@ -782,14 +785,12 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
             linkhtml = linkhtml + u'~~Next~~ | '
 
         if fd.titleroot:
-            linkhtml = linkhtml + u'[Root of Title](' + fd.titleroot + u')'
+            linkhtml = linkhtml + u'[Root of Title](' + fd.titleroot + u') | '
         else:
-            linkhtml = linkhtml + u'~~Root of Title~~'
+            linkhtml = linkhtml + u'~~Root of Title~~ | '
 
-        for l in linkset:
-            # refcontent md-escaped on construction
-            rurl = md_escape(u'https://publicdocs.github.io/url-resolver/go?ns=uslm&' + urllib.urlencode({u'ref' : unicode(l.href).encode('utf-8')}))
-            linksetmd = linksetmd + u'[' + l.refcontent + u']: ' + rurl + u'\n'
+        rurl = md_escape(u'https://publicdocs.github.io/go/links?ns=uslm&' + urllib.urlencode({u'ref' : unicode(outs[0].uslmid).encode('utf-8')}))
+        linkhtml = linkhtml + u'[Other Versions of this Document](' + rurl + u')'
 
         fc = _out_header_markdown.substitute(
                 rp1 = rp1,
@@ -799,7 +800,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 titlefile = titlefilename,
                 docmd = u'./' + fd.titleroot + u'/README.md',
                 sha512xml = xmlsha,
-                filepart = unicode(cid),
+                filepart = md_escape(unicode(outs[0].uslmid)),
                 notice = notice,
                 origmd = p.inputmeta,
                 title = title,
