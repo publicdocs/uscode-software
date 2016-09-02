@@ -512,6 +512,26 @@ def md_fancy(cid):
 
 
 def dir_safe_uslm_id(cid):
+    if u":" in cid:
+        print "Cannot have ':' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
+    if u"*" in cid:
+        print "Cannot have '*' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
+    if u"$" in cid:
+        print "Cannot have '$' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
+    if u"@" in cid:
+        print "Cannot have '@' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
     if u".." == cid or u"/../" == cid or u"/.." in cid or u"../" in cid:
         print "Cannot have '..' in identifier " + cid
         assert(False)
@@ -525,7 +545,7 @@ def dir_safe_uslm_id(cid):
     return cid
 
 def file_safe_uslm_id(cid):
-    cid = cid.replace(u'/', u'_')
+    cid = cid.replace(u'/', u'_').replace(u':', u'_').replace(u'*', u'_').replace(u'$', u'_')
 
     if u"/" in cid:
         print "Cannot have '/' in identifier " + cid
@@ -634,6 +654,11 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 cid = file_safe_uslm_id(fd.identifier)
                 fn = (u'/m_') + cid + u'.md'
                 tr = u'./' + (u'../' * lastdir.count(u'/'))
+                while (lastdir + u'/' + fn) in allfullcids:
+                    print "(Non-Fatal) #### Duplicate USLM identifier-file " + o.lastdir + u'/' + fn + " at " + titlepath
+                    cid = file_safe_uslm_id(cid + u'^extra')
+                    fn = (u'/m_') + cid + u'.md'
+                allfullcids.add(lastdir + u'/' + fn)
                 outsets.append([fd._replace(titleroot = tr, dir=lastdir, filename = fn), lastoutset])
                 lastoutset = []
                 inc = inc + 1
