@@ -610,16 +610,24 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         titletrunc = titletrunc[1:]
 
     inc = 0
+    allcids = set()
     osss = p.outputmd
     hasFd = False
     for o in osss:
         if isinstance(o, FileDelimiter):
             hasFd = True
-            break
+            if o.identifier in allcids:
+                print "#### Duplicate USLM identifier " + o.identifier + " at " + titlepath
+                assert(False)
+                sys.exit(2)
+                return
+            allcids.add(o.identifier)
     if not hasFd:
         cid2 = (u"/us/usc/t" + titletrunc).lower()
         print titlepath + u" is missing any file delimiters; adding an artificial one with id =" + cid2
         osss.append(FileDelimiter(identifier=cid2, dir=cid2))
+
+
     # dummy terminator
     osss.append(FileDelimiter())
     for o in osss:
