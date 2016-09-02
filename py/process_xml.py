@@ -553,6 +553,10 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 # thru 114-115, this appendix is borked, missing a </appendix> before a </uscDoc>
                 replace_line(titlepath, titlepath + u"_mod.xml", u"</uscDoc>\n", u"</appendix></uscDoc>\n")
                 titlepath = titlepath + u"_mod.xml"
+                replace_line(titlepath, titlepath + u"_mod.xml", u"</uscDoc>\r", u"</appendix></uscDoc>\r")
+                titlepath = titlepath + u"_mod.xml"
+                replace_line(titlepath, titlepath + u"_mod.xml", u"</uscDoc>", u"</appendix></uscDoc>")
+                titlepath = titlepath + u"_mod.xml"
                 iss1 = u"* The XML file is missing a closing </appendix> before a closing </uscDoc>; we have inserted the former to process this file.\n"
                 print u"### ISSUE WITH " + titlepath + u": " + iss1
                 issues = issues + iss1
