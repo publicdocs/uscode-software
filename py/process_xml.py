@@ -30,7 +30,7 @@ import shutil
 import StringIO
 import zipfile
 
-
+from xml.sax.saxutils import escape
 from xml.etree import ElementTree
 from string import Template
 from collections import namedtuple
@@ -281,6 +281,10 @@ def prep_output(wd):
         shutil.rmtree(wdir)
     os.makedirs(wdir)
 
+_quotes = {'"': "&quot;", "'": "&apos;"}
+def html_escape(t):
+    return escape(t, _quotes)
+
 def has_class(elem, clazz):
     g = elem.get("class")
     if not g:
@@ -289,7 +293,7 @@ def has_class(elem, clazz):
         return True
     return g.endswith(u" " + clazz) or g.startswith(clazz + u" ")
 
-def process_element(elem, nofmt = False):
+def process_element(elem, inhtml, nofmt):
     meta = u''
     tag = elem.tag
     text = elem.text
@@ -312,8 +316,15 @@ def process_element(elem, nofmt = False):
     # title 15,<ref class="footnoteRef" idref="fn002021">1</ref><note type="footnote" id="fn002021"><num>1</num> See References in Text note below.</note> the ter
     if tag == TAG_REF and has_class(elem, u"footnoteRef"):
         outputs.append(u' <sup>\[')
-    elif tag == TAG_REF and elem.get('href'):
-        outputs.append(u'[')
+    elif tag == TAG_REF and elem.get(u'href'):
+        if inhtml:
+            hh = unicode(elem.get(u'href'))
+            rurl = u'https://publicdocs.github.io/go/links?ns=uslm&' + rps + urllib.urlencode({u'ref' : hh.encode('utf-8')})
+            hesc1 = html_escape(rurl)
+            hesc2 = html_escape(hh)
+            outputs.append(u'<a href="' + hesc1 + '" data-uslm-ref="' + hesc2 + '">')
+        else:
+            outputs.append(u'[')
 
     if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
         outputs.append(u' <sup> ')
@@ -346,7 +357,7 @@ def process_element(elem, nofmt = False):
                 else:
                     outputs.append(u'    <td> ')
                 colouts = []
-                p = process_element(cole, chnofmt)
+                p = process_element(cole, True, chnofmt)
                 if p.outputmd:
                     # Already escaped
                     for txtp in p.outputmd:
@@ -386,7 +397,7 @@ def process_element(elem, nofmt = False):
                         else:
                             outputs.append(u'    <td> ')
                         colouts = []
-                        p = process_element(cole, chnofmt)
+                        p = process_element(cole, True, chnofmt)
                         if p.outputmd:
                             # Already escaped
                             for txtp in p.outputmd:
@@ -420,7 +431,7 @@ def process_element(elem, nofmt = False):
                     else:
                         outputs.append(u'    <td> ')
                     colouts = []
-                    p = process_element(cole, chnofmt)
+                    p = process_element(cole, True, chnofmt)
                     if p.outputmd:
                         # Already escaped
                         for txtp in p.outputmd:
@@ -453,12 +464,18 @@ def process_element(elem, nofmt = False):
 
         if text:
             if text.strip() and (content_pre or content_post):
-                outputs.append(content_pre + md_escape(unicode(text).strip()) + content_post)
+                if inhtml:
+                    outputs.append(content_pre + html_escape(unicode(text).strip()) + content_post)
+                else:
+                    outputs.append(content_pre + md_escape(unicode(text).strip()) + content_post)
             else:
-                outputs.append(md_escape(unicode(text)))
+                if inhtml:
+                    outputs.append(html_escape(unicode(text)))
+                else:
+                    outputs.append(md_escape(unicode(text)))
 
         for child in elem:
-            p = process_element(child, chnofmt)
+            p = process_element(child, inhtml, chnofmt)
             if p.outputmd:
                 # Already escaped
                 for txtp in p.outputmd:
@@ -475,9 +492,15 @@ def process_element(elem, nofmt = False):
                 meta = meta + p.inputmeta
             if p.tail:
                 if p.tail.strip() and (content_pre or content_post):
-                    outputs.append(content_pre + md_escape(unicode(p.tail).strip()) + content_post)
+                    if inhtml:
+                        outputs.append(content_pre + html_escape(unicode(p.tail).strip()) + content_post)
+                    else:
+                        outputs.append(content_pre + md_escape(unicode(p.tail).strip()) + content_post)
                 else:
-                    outputs.append(md_escape(unicode(p.tail)))
+                    if inhtml:
+                        outputs.append(html_escape(unicode(p.tail)))
+                    else:
+                        outputs.append(md_escape(unicode(p.tail)))
 
     if tag == TAG_HEADING:
         outputs.append(u'\n')
@@ -485,9 +508,12 @@ def process_element(elem, nofmt = False):
     if tag == TAG_REF and has_class(elem, u"footnoteRef"):
         outputs.append(u'\]</sup> ')
     elif tag == TAG_REF and elem.get(u'href'):
-        href = md_escape(elem.get(u'href'))
-        outputs.append(u'][' + href + u']')
-        outputs.append(Link(href=elem.get(u'href'), refcontent=href))
+        if inhtml:
+            outputs.append(u'</a>')
+        else:
+            href = md_escape(elem.get(u'href'))
+            outputs.append(u'][' + href + u']')
+            outputs.append(Link(href=elem.get(u'href'), refcontent=href))
 
     if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
         outputs.append(u' </sup> ')
@@ -658,7 +684,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
 
 
 
-    p = process_element(origxml)
+    p = process_element(origxml, False, False)
     outsets = []
     fd = None
     lastdir = None
