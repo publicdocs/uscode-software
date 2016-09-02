@@ -556,7 +556,11 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 issues = issues + u"* The XML file is missing a closing </appendix> before a closing </uscDoc>; we have inserted the former to process this file.\n"
 
 
-    origxml = ElementTree.parse(titlepath).getroot()
+    try:
+        origxml = ElementTree.parse(titlepath).getroot()
+    except:
+        print u"### FAILURE TO PARSE " + titlepath
+        raise
 
 
 
