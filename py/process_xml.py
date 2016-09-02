@@ -524,7 +524,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     zipurl = _download_url_template.substitute(rp1 = rp1, rp2 = rp2)
     titlefilename = u"usc" + title + u".xml"
     moredir = "xml/"
-    if rp1 == u"113" and rp2 == u"21":
+    if not (os.path.exists(zip_contents.titledir + u"/" + moredir) and os.path.isdir(zip_contents.titledir + u"/" + moredir)):
         moredir = u""
     titlepath = zip_contents.titledir + u"/" + moredir + titlefilename
 
