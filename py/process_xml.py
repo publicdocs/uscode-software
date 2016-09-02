@@ -171,6 +171,7 @@ TAGS_BREAK = [TAG_CHAPEAU, TAG_CONTINUATION, TAG_P]
 TAGS_BREAK.extend(TAGS_HEADINGS)
 TAGS_BREAK.extend(TAGS_SMALL)
 
+TAG_NOTE = _sp + "note"
 
 TAG_LAYOUT = _sp + "layout"
 TAG_HEADER = _sp + "header"
@@ -191,6 +192,7 @@ ZipContents = namedtuple("ZipContents", "sha512 titledir")
 ProcessedElement = namedtuple("ProcessedElement", "inputmeta outputmd tail")
 FileDelimiter = namedtuple("FileDelimiter", "identifier dir titleroot reporoot prev next filename")
 FileDelimiter.__new__.__defaults__ = (None, ) * len(FileDelimiter._fields)
+Link = namedtuple("Link", "refcontent href")
 
 ## FUNCTIONS
 
@@ -275,6 +277,14 @@ def prep_output(wd):
         shutil.rmtree(wdir)
     os.makedirs(wdir)
 
+def has_class(elem, clazz):
+    g = elem.get("class")
+    if not g:
+        return False
+    if g == clazz:
+        return True
+    return g.endswith(u" " + clazz) or g.startswith(clazz + u" ")
+
 def process_element(elem, nofmt = False):
     meta = u''
     tag = elem.tag
@@ -283,6 +293,8 @@ def process_element(elem, nofmt = False):
     tail = elem.tail
     # Rule: Any text content must be MD-escaped
     outputs = []
+    links = []
+    footnotes = []
     filesep = None
     cid = None
     content_pre = u''
@@ -291,6 +303,14 @@ def process_element(elem, nofmt = False):
     line_content_post = u''
     chnofmt = False
     extraproc = False
+
+    # Example of a footnote in context:
+    # title 15,<ref class="footnoteRef" idref="fn002021">1</ref><note type="footnote" id="fn002021"><num>1</num> See References in Text note below.</note> the ter
+    if tag == TAG_REF and has_class(elem, "footnoteRef"):
+        outputs.append(u' <sup>\[')
+    if tag == TAG_NOTE and has_class(elem, "footnote"):
+        outputs.append(u' <sup> ')
+
     if tag == TAG_META:
         meta = unicode(ElementTree.tostring(elem))
     #elif tag == TAG_REF:
@@ -454,6 +474,12 @@ def process_element(elem, nofmt = False):
 
     if tag == TAG_HEADING:
         outputs.append(u'\n')
+
+    if tag == TAG_REF and has_class(elem, "footnoteRef"):
+        outputs.append(u']</sup> ')
+
+    if tag == TAG_NOTE and has_class(elem, "footnote"):
+        outputs.append(u' </sup> ')
 
     ind = u""
     if extraproc and elem.get('class'):
