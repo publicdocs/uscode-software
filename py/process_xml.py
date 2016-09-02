@@ -319,7 +319,7 @@ def process_element(elem, inhtml, nofmt):
     elif tag == TAG_REF and elem.get(u'href'):
         if inhtml:
             hh = unicode(elem.get(u'href'))
-            rurl = u'https://publicdocs.github.io/go/links?ns=uslm&' + rps + urllib.urlencode({u'ref' : hh.encode('utf-8')})
+            rurl = u'https://publicdocs.github.io/go/links?ns=uslm&' + urllib.urlencode({u'ref' : hh.encode('utf-8')})
             hesc1 = html_escape(rurl)
             hesc2 = html_escape(hh)
             outputs.append(u'<a href="' + hesc1 + '" data-uslm-ref="' + hesc2 + '">')
