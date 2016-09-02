@@ -611,16 +611,14 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
 
     inc = 0
     allcids = set()
+    allfullcids = set()
     osss = p.outputmd
     hasFd = False
     for o in osss:
         if isinstance(o, FileDelimiter):
             hasFd = True
             if o.identifier in allcids:
-                print "#### Duplicate USLM identifier " + o.identifier + " at " + titlepath
-                assert(False)
-                sys.exit(2)
-                return
+                print "(Non-Fatal) #### Duplicate USLM identifier " + o.identifier + " at " + titlepath
             allcids.add(o.identifier)
     if not hasFd:
         cid2 = (u"/us/usc/t" + titletrunc).lower()
@@ -679,7 +677,14 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         if not os.path.exists(cdir):
             os.makedirs(cdir)
         of = cdir + u'/' + outs[0].filename
-        ofl = u'./' + outs[0].dir + u'/' + outs[0].filename
+        if os.path.exists(of):
+            print "(FATAL) #### Cannot have the same identifier multiple times in one directory."
+            print "        #### Duplicate USLM identifier " + of + " at " + titlepath
+            assert(False)
+            sys.exit(2)
+            return
+
+        filename_for_readme_index = u'./' + outs[0].dir + u'/' + outs[0].filename
 
         innercontent = StringIO.StringIO()
         innercontent.write(u''.join(outs[1]))
@@ -688,7 +693,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         idn = fd.dir.count(u'/') - 3
         if not (fd.dir == cid):
             idn = idn + 1
-        index = index + (u'  ' * (idn)) +  u'* [' + cid+ u']('+ ofl  +u')\n'
+        index = index + (u'  ' * (idn)) +  u'* [' + cid+ u']('+ filename_for_readme_index  +u')\n'
         linkhtml = u''
         if fd.prev:
             linkhtml = linkhtml + u'[Previous](' + fd.prev + u') | '
