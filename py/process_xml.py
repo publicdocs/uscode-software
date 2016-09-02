@@ -494,22 +494,39 @@ def delete_line(path1, path2, num):
     fr.close()
     fw.close()
 
+def replace_line(path1, path2, from, to):
+    fr = codecs.open(path1, 'rb', encoding='utf-8')
+    fw = codecs.open(path2, 'wb', encoding='utf-8')
+    i = 1
+    for line in fr:
+        if i == from:
+            fw.write(to)
+        else:
+            fw.write(line)
+        i = i + 1
+    fr.close()
+    fw.close()
+
 def md_fancy(cid):
     return cid
 
 def process_title(zip_contents, title, rp1, rp2, notice, wd):
-    wdir = wd + '/gen/titles/usc' + title
+    rp1 = unicode(rp1)
+    rp2 = unicode(rp2)
+    notice = unicode(notice)
+    title = unicode(title)
+    wdir = wd + u'/gen/titles/usc' + title
     issues = u''
     if os.path.exists(wdir):
         shutil.rmtree(wdir)
     os.makedirs(wdir)
-    of = wdir + '/title.md'
+    of = wdir + u'/title.md'
     zipurl = _download_url_template.substitute(rp1 = rp1, rp2 = rp2)
-    titlefilename = "usc" + title + ".xml"
+    titlefilename = u"usc" + title + u".xml"
     moredir = "xml/"
-    if rp1 == "113" and rp2 == "21":
-        moredir = ""
-    titlepath = zip_contents.titledir + "/" + moredir + titlefilename
+    if rp1 == u"113" and rp2 == u"21":
+        moredir = u""
+    titlepath = zip_contents.titledir + u"/" + moredir + titlefilename
 
 
     hasher = hashlib.sha512()
@@ -520,16 +537,24 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         return -1
     xmlsha = hasher.hexdigest()
 
-    if rp1 == "113" and rp2 == "46" and title == "16":
+    if rp1 == u"113" and rp2 == u"46" and title == u"16":
         print "usc16.xml at release 113-46 is a corrupt file"
         assert(False)
         sys.exit(2)
         return
-    if rp1 == "113" and rp2 == "65" and title == "31":
+    if rp1 == u"113" and rp2 == u"65" and title == u"31":
         print "usc31.xml at release 113-65 is a corrupt file"
         assert(False)
         sys.exit(2)
         return
+    if rp1 == u"114":
+        if rp2 in [u"93not92", u"100not94not95", u"114not95not113", u"115not95"]:
+            if title == u"50A":
+                # thru 114-115, this appendix is borked, missing a </appendix> before a </uscDoc>
+                replace_line(titlepath, titlepath + u"_mod.xml", u"</uscDoc>", u"</appendix></uscDoc>")
+                titlepath = titlepath + u"_mod.xml"
+                issues = issues + u"* The XML file is missing a closing </appendix> before a closing </uscDoc>; we have inserted the former to process this file.\n"
+
 
     origxml = ElementTree.parse(titlepath).getroot()
 
@@ -541,16 +566,28 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     lastdir = None
     lastoutset = []
 
+    titletrunc = title
+    while titletrunc.startswith(u'0'):
+        titletrunc = titletrunc[1:]
 
     inc = 0
     osss = p.outputmd
+    hasFd = False
+    for o in osss:
+        if isinstance(o, FileDelimiter):
+            hasFd = True
+            break
+    if not hasFd:
+        cid2 = (u"/us/usc/t" + titletrunc).lower()
+        print titlepath + u" is missing any file delimiters; adding an artificial one with id =" + cid2
+        osss.append(FileDelimiter(identifier=cid2, dir=cid2))
     # dummy terminator
     osss.append(FileDelimiter())
     for o in osss:
         if isinstance(o, FileDelimiter):
             if fd:
                 cid = fd.identifier
-                if ".." in cid:
+                if u".." in cid:
                     print "Cannot have '..' in identifier " + cid
                     assert(False)
                     sys.exit(2)
@@ -587,11 +624,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
 
     index = u'\n\n'
 
-    titletrunc = title
-    while titletrunc.startswith(u'0'):
-        titletrunc = titletrunc[1:]
-
-    isappendix = title.endswith(u'A')
+    isappendix = title.endswith(u'A') or title.endswith(u'a')
 
     fancytitle = titletrunc + u' U.S.C.'
     if isappendix:
@@ -603,7 +636,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         cdir = wdir + u'/' + outs[0].dir
         if not os.path.exists(cdir):
             os.makedirs(cdir)
-        of = cdir + '/' + outs[0].filename
+        of = cdir + u'/' + outs[0].filename
         ofl = u'./' + outs[0].dir + u'/' + outs[0].filename
 
         innercontent = StringIO.StringIO()
@@ -637,7 +670,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 url = zipurl,
                 sha512zip = zip_contents.sha512,
                 titlefile = titlefilename,
-                docmd = u'./' + fd.titleroot + '/README.md',
+                docmd = u'./' + fd.titleroot + u'/README.md',
                 sha512xml = xmlsha,
                 filepart = unicode(cid),
                 notice = notice,
@@ -653,7 +686,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         f.write(fc.encode('utf8'))
         f.close()
 
-    of = wdir + '/README.md'
+    of = wdir + u'/README.md'
     if issues:
         issues = u'Issues: \n\n' + issues + '\n'
     fc = _out_readme_markdown.substitute(
@@ -721,7 +754,7 @@ def main():
         prep_output(args.working_directory)
         at = args.titles
         if not at:
-            at = sorted("01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 05A 11A 18A 28A 50A".split())
+            at = sorted("01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 05A 11A 18A 28a 50A".split())
         if len(at) > 1:
             pool = Pool(len(at))
             tp = title_processor(zipinfo, args.rp1, args.rp2, notice, args.working_directory)
