@@ -30,7 +30,7 @@ do
 done
 
 git add -A .
-git commit -m "Rel $USCRP1-$USCRP2 - Corrupted USC titles: $USCFAILEDTITLES
+git commit -m "(Rel $USCRP1-$USCRP2) $USCFAILEDTITLES U.S.C. are corrupt.
 
 These titles cannot be updated, usually because their XML files are invalid or corrupted, and remain at the prior release point.
 
@@ -57,7 +57,7 @@ do
         cp -R ../uscode-software/working/gen/titles/usc$USCNUM assets/md/titles
         git add -A .
         echo P1 Major Content difference for $USCNUM - committing.
-        git commit -m "Rel $USCRP1-$USCRP2 - USC $USCNUM :$USCDIFFSTAT
+        git commit -m "(Rel $USCRP1-$USCRP2) $USCNUM U.S.C. :$USCDIFFSTAT
 
 Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER"
       fi
@@ -81,6 +81,6 @@ done
 
 
 git add -A .
-git commit -m "Rel $USCRP1-$USCRP2 - USC titles with minor update only: $USCMDONLY
+git commit -m "(Rel $USCRP1-$USCRP2) Minor updates to U.S.C. titles: $USCMDONLY
 
 Generated with https://github.com/publicdocs/uscode-software/tree/$USC_SW_VER" || echo P2 No metadata only titles.

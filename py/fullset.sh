@@ -86,7 +86,7 @@ if [ "$USCSTEP" = "03" ]; then
   USC_SW_VER=$(git --git-dir=../uscode-software/.git rev-parse HEAD)
 
   git add -A .
-  git commit -m "U.S.C. Rel $USCRP1-$USCRP2
+  git commit -m "U.S.C. (Public Docs Rel $USCRP1-$USCRP2)
 
   All valid titles updated.
 
