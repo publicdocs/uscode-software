@@ -655,7 +655,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 fn = (u'/m_') + cid + u'.md'
                 tr = u'./' + (u'../' * lastdir.count(u'/'))
                 while (lastdir + u'/' + fn) in allfullcids:
-                    print "(Non-Fatal) #### Duplicate USLM identifier-file " + o.lastdir + u'/' + fn + " at " + titlepath
+                    print "(Non-Fatal) #### Duplicate USLM identifier-file " + lastdir + u'/' + fn + " at " + titlepath
                     cid = file_safe_uslm_id(cid + u'^extra')
                     fn = (u'/m_') + cid + u'.md'
                 allfullcids.add(lastdir + u'/' + fn)
