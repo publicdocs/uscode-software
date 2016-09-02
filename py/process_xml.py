@@ -510,6 +510,35 @@ def replace_line(path1, path2, a1, a2):
 def md_fancy(cid):
     return cid
 
+
+def dir_safe_uslm_id(cid):
+    if u".." == cid or u"/../" == cid or u"/.." in cid or u"../" in cid:
+        print "Cannot have '..' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
+    if cid.startswith(u".") or cid.endswith(u"."):
+        print "Cannot start or end with '.' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
+    return cid
+
+def file_safe_uslm_id(cid):
+    cid = cid.replace(u'/', u'_')
+
+    if u"/" in cid:
+        print "Cannot have '/' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
+    if u".." == cid or u"/../" == cid or u"/.." in cid or u"../" in cid:
+        print "Cannot have '..' in identifier " + cid
+        assert(False)
+        sys.exit(2)
+        return
+    return cid
+
 def process_title(zip_contents, title, rp1, rp2, notice, wd):
     rp1 = unicode(rp1)
     rp2 = unicode(rp2)
@@ -596,20 +625,15 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     for o in osss:
         if isinstance(o, FileDelimiter):
             if fd:
-                cid = fd.identifier
-                if u".." in cid:
-                    print "Cannot have '..' in identifier " + cid
-                    assert(False)
-                    sys.exit(2)
-                    return
-                fn = (u'/m_') + cid.replace(u'/', u'_') + u'.md'
+                cid = file_safe_uslm_id(fd.identifier)
+                fn = (u'/m_') + cid + u'.md'
                 tr = u'./' + (u'../' * lastdir.count(u'/'))
                 outsets.append([fd._replace(titleroot = tr, dir=lastdir, filename = fn), lastoutset])
                 lastoutset = []
                 inc = inc + 1
             fd = o
             if o.dir:
-                lastdir = o.dir
+                lastdir = dir_safe_uslm_id(o.dir)
         else:
             lastoutset.append(o)
 
