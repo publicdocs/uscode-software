@@ -494,13 +494,13 @@ def delete_line(path1, path2, num):
     fr.close()
     fw.close()
 
-def replace_line(path1, path2, from, to):
+def replace_line(path1, path2, a1, a2):
     fr = codecs.open(path1, 'rb', encoding='utf-8')
     fw = codecs.open(path2, 'wb', encoding='utf-8')
     i = 1
     for line in fr:
-        if i == from:
-            fw.write(to)
+        if i == a1:
+            fw.write(a2)
         else:
             fw.write(line)
         i = i + 1
