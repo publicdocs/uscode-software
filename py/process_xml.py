@@ -23,6 +23,7 @@
 #
 
 import urllib2
+import urllib
 import hashlib
 import os
 import codecs
@@ -50,13 +51,18 @@ _out_header_markdown = Template(u"""# $fancytitle, USLM ref $filepart
 ----------
 ----------
 
-$links
+$navlinks
 
 $innercontent
 
 ----------
 
-$links
+$navlinks
+
+----------
+----------
+
+$linkset
 
 """)
 
@@ -309,6 +315,9 @@ def process_element(elem, nofmt = False):
     # title 15,<ref class="footnoteRef" idref="fn002021">1</ref><note type="footnote" id="fn002021"><num>1</num> See References in Text note below.</note> the ter
     if tag == TAG_REF and has_class(elem, u"footnoteRef"):
         outputs.append(u' <sup>\[')
+    elif tag == TAG_REF and elem.get('href'):
+        outputs.append(u'[')
+
     if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
         outputs.append(u' <sup> ')
 
@@ -458,7 +467,7 @@ def process_element(elem, nofmt = False):
                 for txtp in p.outputmd:
                     if not txtp:
                         continue
-                    if isinstance(txtp, FileDelimiter):
+                    if isinstance(txtp, FileDelimiter) or isinstance(txtp, Link):
                         outputs.append(txtp)
                         continue
                     if txtp.strip() and (content_pre or content_post):
@@ -476,8 +485,13 @@ def process_element(elem, nofmt = False):
     if tag == TAG_HEADING:
         outputs.append(u'\n')
 
-    if tag == TAG_REF and has_class(elem, "footnoteRef"):
+    if tag == TAG_REF and has_class(elem, u"footnoteRef"):
         outputs.append(u'\]</sup> ')
+    elif tag == TAG_REF and elem.get(u'href'):
+        href = md_escape(elem.get(u'href'))
+        outputs.append(u'][' + href + u']')
+        outputs.append(Link(href=elem.get(u'href'), refcontent=href))
+
     if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
         outputs.append(u' </sup> ')
 
@@ -490,6 +504,8 @@ def process_element(elem, nofmt = False):
     for o in outputs:
         if isinstance(o, FileDelimiter):
             lastnl = True
+            outputs2.append(o)
+        elif isinstance(o, Link):
             outputs2.append(o)
         else:
             if extraproc and o.strip() and lastnl:
@@ -650,6 +666,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     fd = None
     lastdir = None
     lastoutset = []
+    lastlinkset = []
 
     titletrunc = title
     while titletrunc.startswith(u'0'):
@@ -685,20 +702,25 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                     cid = file_safe_uslm_id(cid + u'^extra')
                     fn = (u'/m_') + cid + u'.md'
                 allfullcids.add(lastdir + u'/' + fn)
-                outsets.append([fd._replace(titleroot = tr, dir=lastdir, filename = fn), lastoutset])
+                outsets.append([fd._replace(titleroot = tr, dir=lastdir, filename = fn), lastoutset, lastlinkset])
                 lastoutset = []
+                lastlinkset = []
                 inc = inc + 1
             fd = o
             if o.dir:
                 lastdir = dir_safe_uslm_id(o.dir)
         else:
-            lastoutset.append(o)
+            if isinstance(o, Link):
+                lastlinkset.append(o)
+            else:
+                lastoutset.append(o)
 
     outsets2 = []
     ll = len(outsets)
     for idx, o in enumerate(outsets):
         fd = o[0]
         lo = o[1]
+        linkset = o[2]
         lprev = None
         lnext = None
         if idx > 0:
@@ -707,7 +729,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         if idx < ll - 1:
             ln = outsets[idx + 1][0]
             lnext = fd.titleroot + ln.dir + ln.filename
-        outsets2.append([fd._replace(prev = lprev, next = lnext), lo])
+        outsets2.append([fd._replace(prev = lprev, next = lnext), lo, linkset])
 
     finaloutsets = outsets2
 
@@ -722,6 +744,8 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         fancytitle = u"Appendix to " + titletrunc[:-1] + u' U.S.C.'
 
     for outs in finaloutsets:
+        linksetmd = u''
+        linkset = outs[2]
         fd = outs[0]
         cid = outs[0].identifier
         cdir = wdir + u'/' + outs[0].dir
@@ -762,6 +786,11 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
         else:
             linkhtml = linkhtml + u'~~Root of Title~~'
 
+        for l in linkset:
+            # refcontent md-escaped on construction
+            rurl = md_escape(u'https://publicdocs.github.io/url-resolver/go?' + urllib.urlencode({'ref' : l.href }))
+            linksetmd = linksetmd + u'[' + l.refcontent + u']: ' + rurl + u'\n'
+
         fc = _out_header_markdown.substitute(
                 rp1 = rp1,
                 rp2 = rp2,
@@ -774,7 +803,8 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 notice = notice,
                 origmd = p.inputmeta,
                 title = title,
-                links = linkhtml,
+                navlinks = linkhtml,
+                linkset = linksetmd,
                 innercontent = cont,
                 titletrunc = titletrunc,
                 filepartfancy = md_fancy(cid),
