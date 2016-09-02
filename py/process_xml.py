@@ -133,6 +133,9 @@ TAG_SUBDIVISION = _sp + "subdivision"
 TAG_ARTICLE = _sp + "article"
 TAG_SUBARTICLE = _sp + "subarticle"
 
+
+TAG_SIGNATURE = _sp + "signature"
+
 TAG_SECTION = _sp + "section"
 TAG_COURT_RULE = _sp + "courtRule"
 
@@ -255,7 +258,7 @@ def md_indent(clazz):
     elif u"indent0" in clazz:
         ind = 1
     if ind > 0:
-        return NBSP * 2
+        return NBSP * 4
     return u''
 
 
@@ -311,11 +314,14 @@ def process_element(elem, inhtml, nofmt):
     line_content_post = u''
     chnofmt = False
     extraproc = False
+    escaper = md_escape
+    if inhtml:
+        escaper = html_escape
 
     # Example of a footnote in context:
     # title 15,<ref class="footnoteRef" idref="fn002021">1</ref><note type="footnote" id="fn002021"><num>1</num> See References in Text note below.</note> the ter
     if tag == TAG_REF and has_class(elem, u"footnoteRef"):
-        outputs.append(u' <sup>\[')
+        outputs.append(u' <sup>' + escaper(u'['))
     elif tag == TAG_REF and elem.get(u'href'):
         if inhtml:
             hh = unicode(elem.get(u'href'))
@@ -327,7 +333,7 @@ def process_element(elem, inhtml, nofmt):
             outputs.append(u'[')
 
     if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
-        outputs.append(u' <sup> ')
+        outputs.append(u' <sup><sup> ')
 
     if tag == TAG_META:
         meta = unicode(ElementTree.tostring(elem))
@@ -453,6 +459,10 @@ def process_element(elem, inhtml, nofmt):
             outputs.append(u'\n\n' + md_header_prefix(cid))
         elif tag in TAGS_BREAK:
             outputs.append(u'\n\n')
+        elif tag == TAG_SIGNATURE:
+            if not nofmt:
+                content_pre = NBSP * 30
+                content_post = u''
         elif tag in TAGS_BOLDEN:
             if not nofmt:
                 content_pre = u' __'
@@ -464,15 +474,9 @@ def process_element(elem, inhtml, nofmt):
 
         if text:
             if text.strip() and (content_pre or content_post):
-                if inhtml:
-                    outputs.append(content_pre + html_escape(unicode(text).strip()) + content_post)
-                else:
-                    outputs.append(content_pre + md_escape(unicode(text).strip()) + content_post)
+                outputs.append(content_pre + escaper(unicode(text).strip()) + content_post)
             else:
-                if inhtml:
-                    outputs.append(html_escape(unicode(text)))
-                else:
-                    outputs.append(md_escape(unicode(text)))
+                outputs.append(escaper(unicode(text)))
 
         for child in elem:
             p = process_element(child, inhtml, chnofmt)
@@ -492,21 +496,15 @@ def process_element(elem, inhtml, nofmt):
                 meta = meta + p.inputmeta
             if p.tail:
                 if p.tail.strip() and (content_pre or content_post):
-                    if inhtml:
-                        outputs.append(content_pre + html_escape(unicode(p.tail).strip()) + content_post)
-                    else:
-                        outputs.append(content_pre + md_escape(unicode(p.tail).strip()) + content_post)
+                    outputs.append(content_pre + escaper(unicode(p.tail).strip()) + content_post)
                 else:
-                    if inhtml:
-                        outputs.append(html_escape(unicode(p.tail)))
-                    else:
-                        outputs.append(md_escape(unicode(p.tail)))
+                    outputs.append(escaper(unicode(p.tail)))
 
     if tag == TAG_HEADING:
         outputs.append(u'\n')
 
     if tag == TAG_REF and has_class(elem, u"footnoteRef"):
-        outputs.append(u'\]</sup> ')
+        outputs.append(escaper(u']') + u'</sup> ')
     elif tag == TAG_REF and elem.get(u'href'):
         if inhtml:
             outputs.append(u'</a>')
@@ -516,7 +514,7 @@ def process_element(elem, inhtml, nofmt):
             outputs.append(Link(href=elem.get(u'href'), refcontent=href))
 
     if tag == TAG_NOTE and u"footnote" == elem.get(u'type'):
-        outputs.append(u' </sup> ')
+        outputs.append(u' </sup></sup> ')
 
     ind = u""
     if extraproc and elem.get('class'):
