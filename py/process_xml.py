@@ -300,7 +300,7 @@ def process_element(elem, nofmt = False):
         outputs.append(u'\n\n<table>\n')
         for rowe in elem:
             if not (rowe.tag == TAG_HEADER or rowe.tag == TAG_TOC_ITEM):
-                print u"FAIL layout FOUND ROW " + rowe.tag
+                print u"(FATAL) #### FAIL layout FOUND ROW " + rowe.tag
                 assert(False)
                 system.exit(3)
                 return None
@@ -310,7 +310,7 @@ def process_element(elem, nofmt = False):
                 outputs.append(u'  <tr>\n')
             for cole in rowe:
                 if not (cole.tag == TAG_COLUMN):
-                    print u"FAIL layout FOUND COL " + cole.tag
+                    print u"(FATAL) #### FAIL layout FOUND COL " + cole.tag
                     assert(False)
                     system.exit(3)
                     return None
@@ -340,7 +340,7 @@ def process_element(elem, nofmt = False):
             elif sect.tag == TAG_THEAD or sect.tag == TAG_TBODY or sect.tag == TAG_TFOOT:
                 for rowe in sect:
                     if not (rowe.tag == TAG_TR):
-                        print u"FAIL table FOUND ROW " + rowe.tag
+                        print u"(FATAL) #### FAIL table FOUND ROW " + rowe.tag
                         assert(False)
                         system.exit(3)
                         return None
@@ -350,7 +350,7 @@ def process_element(elem, nofmt = False):
                         outputs.append(u'  <tr>\n')
                     for cole in rowe:
                         if not (cole.tag == TAG_TD or cole.tag == TAG_TH):
-                            print u"FAIL table FOUND COL " + cole.tag
+                            print u"(FATAL) #### FAIL table FOUND COL " + cole.tag
                             assert(False)
                             system.exit(3)
                             return None
@@ -374,7 +374,7 @@ def process_element(elem, nofmt = False):
             else:
                 rowe = sect
                 if not (rowe.tag == TAG_TR):
-                    print u"FAIL table FOUND ROW " + rowe.tag
+                    print u"(FATAL) #### FAIL table FOUND ROW " + rowe.tag
                     assert(False)
                     system.exit(3)
                     return None
@@ -384,7 +384,7 @@ def process_element(elem, nofmt = False):
                     outputs.append(u'  <tr>\n')
                 for cole in rowe:
                     if not (cole.tag == TAG_TD or cole.tag == TAG_TH):
-                        print u"FAIL table FOUND COL " + cole.tag
+                        print u"(FATAL) #### FAIL table FOUND COL " + cole.tag
                         assert(False)
                         system.exit(3)
                         return None
@@ -513,32 +513,32 @@ def md_fancy(cid):
 
 def dir_safe_uslm_id(cid):
     if u":" in cid:
-        print "Cannot have ':' in identifier " + cid
+        print u"(FATAL) #### Cannot have ':' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
     if u"*" in cid:
-        print "Cannot have '*' in identifier " + cid
+        print u"(FATAL) #### Cannot have '*' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
     if u"$" in cid:
-        print "Cannot have '$' in identifier " + cid
+        print u"(FATAL) #### Cannot have '$' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
     if u"@" in cid:
-        print "Cannot have '@' in identifier " + cid
+        print u"(FATAL) #### Cannot have '@' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
     if u".." == cid or u"/../" == cid or u"/.." in cid or u"../" in cid:
-        print "Cannot have '..' in identifier " + cid
+        print u"(FATAL) #### Cannot have '..' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
     if cid.startswith(u".") or cid.endswith(u"."):
-        print "Cannot start or end with '.' in identifier " + cid
+        print u"(FATAL) #### Cannot start or end with '.' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
@@ -548,12 +548,12 @@ def file_safe_uslm_id(cid):
     cid = cid.replace(u'/', u'_').replace(u':', u'_').replace(u'*', u'_').replace(u'$', u'_')
 
     if u"/" in cid:
-        print "Cannot have '/' in identifier " + cid
+        print u"(FATAL) #### Cannot have '/' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
     if u".." == cid or u"/../" == cid or u"/.." in cid or u"../" in cid:
-        print "Cannot have '..' in identifier " + cid
+        print u"(FATAL) #### Cannot have '..' in identifier " + cid
         assert(False)
         sys.exit(2)
         return
@@ -582,17 +582,18 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
     try:
         hasher.update(open(titlepath, 'rb').read())
     except:
-        print "Could not read title " + str(title)
+        print u"(FATAL) #### Could not read title " + str(title)
+        asset(False)
         return -1
     xmlsha = hasher.hexdigest()
 
     if rp1 == u"113" and rp2 == u"46" and title == u"16":
-        print "usc16.xml at release 113-46 is a corrupt file"
+        print u"(FATAL) #### usc16.xml at release 113-46 is a corrupt file"
         assert(False)
         sys.exit(2)
         return
     if rp1 == u"113" and rp2 == u"65" and title == u"31":
-        print "usc31.xml at release 113-65 is a corrupt file"
+        print u"(FATAL) #### usc31.xml at release 113-65 is a corrupt file"
         assert(False)
         sys.exit(2)
         return
@@ -607,14 +608,14 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
                 replace_line(titlepath, titlepath + u"_mod.xml", u"</uscDoc>", u"</appendix></uscDoc>")
                 titlepath = titlepath + u"_mod.xml"
                 iss1 = u"* The XML file is missing a closing \\</appendix\\> before a closing \\</uscDoc\\>; we have inserted the former to process this file.\n"
-                print u"### ISSUE WITH " + titlepath + u": " + iss1
+                print u"(Non-Fatal) #### " +u"ISSUE WITH " + titlepath + u": " + iss1
                 issues = issues + iss1
 
 
     try:
         origxml = ElementTree.parse(titlepath).getroot()
     except:
-        print u"### FAILURE TO PARSE " + titlepath
+        print u"(FATAL) #### FAILURE TO PARSE " + titlepath
         raise
 
 
@@ -642,7 +643,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
             allcids.add(o.identifier)
     if not hasFd:
         cid2 = (u"/us/usc/t" + titletrunc).lower()
-        print titlepath + u" is missing any file delimiters; adding an artificial one with id =" + cid2
+        print u"(Non-Fatal) #### " + titlepath + u" is missing any file delimiters; adding an artificial one with id =" + cid2
         osss.append(FileDelimiter(identifier=cid2, dir=cid2))
 
 
@@ -835,7 +836,7 @@ def main():
             for title in at:
                 process_title(zipinfo, title, args.rp1, args.rp2, notice, args.working_directory)
     else:
-        print "Could not determine operating mode"
+        print u"(FATAL) #### Could not determine operating mode"
         assert(False)
 
 if __name__ == "__main__":
