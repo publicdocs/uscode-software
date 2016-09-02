@@ -788,7 +788,7 @@ def process_title(zip_contents, title, rp1, rp2, notice, wd):
 
         for l in linkset:
             # refcontent md-escaped on construction
-            rurl = md_escape(u'https://publicdocs.github.io/url-resolver/go?' + urllib.urlencode({'ref' : l.href }))
+            rurl = md_escape(u'https://publicdocs.github.io/url-resolver/go?ns=uslm&' + urllib.urlencode({'ref' : l.href}))
             linksetmd = linksetmd + u'[' + l.refcontent + u']: ' + rurl + u'\n'
 
         fc = _out_header_markdown.substitute(
