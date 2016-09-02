@@ -499,7 +499,7 @@ def replace_line(path1, path2, a1, a2):
     fw = codecs.open(path2, 'wb', encoding='utf-8')
     i = 1
     for line in fr:
-        if i == a1:
+        if line == a1:
             fw.write(a2)
         else:
             fw.write(line)
